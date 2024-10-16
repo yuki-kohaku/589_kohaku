@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webサイト</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #icon-container {
+            display: grid;
+            grid-template-columns: repeat(20, 100px);
+            grid-template-rows: repeat(8, 100px);
+            gap: 10px;
+        }
+
+        .icon {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        #add-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        #add-icon-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="icon-container">
+        <!-- アイコンリスト -->
+    </div>
+    <div id="add-icon">
+        <button id="add-icon-btn">アイコン追加</button>
+    </div>
+    <div id="icon-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>アイコンの追加</h2>
+            <label for="icon-link">リンク:</label>
+            <input type="text" id="icon-link" placeholder="https://example.com">
+            <label for="icon-name">名前:</label>
+            <input type="text" id="icon-name" placeholder="サイト名">
+            <button id="save-icon-btn">保存</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const iconContainer = document.getElementById('icon-container');
+            const addIconBtn = document.getElementById('add-icon-btn');
+            const iconModal = document.getElementById('icon-modal');
+            const closeModal = document.querySelector('.close');
+            const saveIconBtn = document.getElementById('save-icon-btn');
+            const iconLinkInput = document.getElementById('icon-link');
+            const iconNameInput = document.getElementById('icon-name');
+
+            const defaultIcons = [
+                { name: 'Google', link: 'https://www.google.com' },
+                { name: 'Bing', link: 'https://www.bing.com' },
+                { name: 'DuckDuckGo', link: 'https://duckduckgo.com' },
+                { name: 'Google Play Store', link: 'https://play.google.com' },
+                { name: 'Epic Games Store', link: 'https://www.epicgames.com/store' },
+                { name: 'Steam', link: 'https://store.steampowered.com' },
+                { name: 'Spotify', link: 'https://www.spotify.com' },
+                { name: 'Trello', link: 'https://trello.com' },
+                { name: 'Canva', link: 'https://www.canva.com' },
+                { name: 'Google Drive', link: 'https://drive.google.com' },
+                { name: 'Microsoft 365', link: 'https://www.office.com' },
+            ];
+
+            // フルスクリーン処理
+            function openFullscreen() {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                }
+            }
+
+            // フルスクリーン解除処理
+            function closeFullscreen() {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+
+            // 初期アイコンを追加
+            function loadIcons() {
+                const storedIcons = JSON.parse(localStorage.getItem('icons'));
+                const icons = storedIcons || defaultIcons;
+
+                iconContainer.innerHTML = '';
+                icons.forEach(icon => {
+                    const iconElement = document.createElement('div');
+                    iconElement.className = 'icon';
+                    iconElement.textContent = icon.name;
+                    iconElement.addEventListener('click', () => {
+                        window.open(icon.link, '_blank');
+                    });
+                    iconContainer.appendChild(iconElement);
+                });
+            }
+
+            // アイコンの保存
+            function saveIcon() {
+                const link = iconLinkInput.value;
+                const name = iconNameInput.value;
+
+                if (link && name) {
+                    const storedIcons = JSON.parse(localStorage.getItem('icons')) || defaultIcons;
+                    storedIcons.push({ name, link });
+                    localStorage.setItem('icons', JSON.stringify(storedIcons));
+                    loadIcons();
+                    iconModal.style.display = 'none';
+                    iconLinkInput.value = '';
+                    iconNameInput.value = '';
+                }
+            }
+
+            // アイコン追加ボタンのクリックイベント
+            addIconBtn.addEventListener('click', function () {
+                iconModal.style.display = 'flex';
+            });
+
+            // モーダルを閉じる
+            closeModal.addEventListener('click', function () {
+                iconModal.style.display = 'none';
+            });
+
+            // アイコン保存ボタンのクリックイベント
+            saveIconBtn.addEventListener('click', saveIcon);
+
+            // ESCキーでサイトを閉じる
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeFullscreen();
+                    window.close();
+                }
+            });
+
+            // 初期ロード処理
+            loadIcons();
+            openFullscreen();
+        });
+    </script>
+</body>
+</html>
